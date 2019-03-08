@@ -116,6 +116,12 @@ ServerFrame::~ServerFrame()
 {
     //(*Destroy(ServerFrame)
     //*)
+    mySocketHashMap::iterator it = m_HashMapClients.begin();
+    while(it != m_HashMapClients.end()){
+        it->second->Destroy();
+        ++it;
+    }
+
     m_PtrServer->Destroy();
 }
 

@@ -13,10 +13,14 @@
 				<Option compiler="gcc" />
 				<Option projectLinkerOptionsRelation="2" />
 				<Compiler>
+					<Add option="-std=c++1z" />
+					<Add option="-std=c11" />
+					<Add option="-m64" />
 					<Add option="-g" />
 					<Add option="`wx-config  --version=3.1 --static=no --unicode=yes --debug=yes --cflags`" />
 				</Compiler>
 				<Linker>
+					<Add option="-m64" />
 					<Add option="`wx-config  --version=3.1 --static=no --unicode=yes --debug=yes --libs`" />
 				</Linker>
 			</Target>
