@@ -11,10 +11,15 @@
 #define SERVERAPP_H
 
 #include <wx/app.h>
+#include <wx/intl.h>
+#include "ServerMain.h"
 
 class ServerApp : public wxApp
 {
-    public:
+        wxLocale m_locale;
+public:
+        ServerApp();
+
         virtual bool OnInit();
 };
 

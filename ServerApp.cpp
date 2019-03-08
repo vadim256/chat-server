@@ -17,6 +17,11 @@
 
 IMPLEMENT_APP(ServerApp);
 
+ServerApp::ServerApp()
+{
+    m_locale.Init(wxLANGUAGE_UKRAINIAN);
+}
+
 bool ServerApp::OnInit()
 {
     //(*AppInitialize
@@ -29,6 +34,6 @@ bool ServerApp::OnInit()
     	SetTopWindow(Frame);
     }
     //*)
-    return wxsOK;
 
+    return wxsOK;
 }

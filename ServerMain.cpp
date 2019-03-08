@@ -48,13 +48,17 @@ const long ServerFrame::idMenuQuit = wxNewId();
 const long ServerFrame::idMenuAbout = wxNewId();
 const long ServerFrame::ID_STATUSBAR1 = wxNewId();
 //*)
+const long ServerFrame::idSocketClient = wxNewId();
+const long ServerFrame::idSocketServer = wxNewId();
 
 BEGIN_EVENT_TABLE(ServerFrame,wxFrame)
     //(*EventTable(ServerFrame)
     //*)
 END_EVENT_TABLE()
 
-ServerFrame::ServerFrame(wxWindow* parent,wxWindowID id)
+
+
+ServerFrame::ServerFrame(wxWindow* parent, wxWindowID id)
 {
     //(*Initialize(ServerFrame)
     wxBoxSizer* BoxSizer1;
@@ -101,12 +105,18 @@ ServerFrame::ServerFrame(wxWindow* parent,wxWindowID id)
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&ServerFrame::OnQuit);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&ServerFrame::OnAbout);
     //*)
+    if(InitializeSocketServer() == false){
+        //???
+    }
+    this->Connect(idSocketServer, wxEVT_SOCKET, wxSocketEventHandler(ServerFrame::OnSocketEventServer));
+    this->Connect(idSocketClient, wxEVT_SOCKET, wxSocketEventHandler(ServerFrame::OnSocketEventClient));
 }
 
 ServerFrame::~ServerFrame()
 {
     //(*Destroy(ServerFrame)
     //*)
+    m_PtrServer->Destroy();
 }
 
 void ServerFrame::OnQuit(wxCommandEvent& event)
@@ -118,4 +128,65 @@ void ServerFrame::OnAbout(wxCommandEvent& event)
 {
     wxString msg = wxbuildinfo(long_f);
     wxMessageBox(msg, _("Welcome to..."));
+}
+
+bool ServerFrame::InitializeSocketServer(){
+
+    wxIPV4address address;
+    address.Service(3000);
+    m_PtrServer = std::make_unique<wxSocketServer>(address);
+    if(m_PtrServer->IsOk() == FALSE) false;
+
+    m_PtrServer->SetEventHandler(*this, idSocketServer);
+    m_PtrServer->SetNotify(wxSOCKET_CONNECTION_FLAG);
+    m_PtrServer->Notify(TRUE);
+
+    return true;
+}
+
+void ServerFrame::OnSocketEventServer(wxSocketEvent & event){
+
+    switch(event.GetSocketEvent()){
+        case wxSOCKET_CONNECTION:
+
+            wxSocketBase * socket_slave = m_PtrServer->Accept(FALSE);
+            if(!socket_slave->IsOk()) return;
+
+            socket_slave->SetEventHandler(*this, idSocketClient);
+            socket_slave->SetNotify(wxSOCKET_INPUT_FLAG|wxSOCKET_LOST_FLAG);
+            socket_slave->Notify(TRUE);
+
+            m_HashMapClients[socket_slave->GetSocket()] = socket_slave;
+            break;
+    /*    default:
+            assert(FALSE);*/
+    }
+}
+
+void ServerFrame::OnSocketEventClient(wxSocketEvent & event){
+    wxSocketBase * socket_slave = event.GetSocket();
+    wxIPV4address address;
+    socket_slave->GetLocal(address);
+    char msg_data[1024];
+    switch(event.GetSocketEvent()){
+        case wxSOCKET_INPUT:
+        socket_slave->Read(msg_data, sizeof(char)*1024);
+        if(socket_slave->Error()){
+
+        } else{
+            msg_data[static_cast<size_t>(ceil(static_cast<double>(socket_slave->LastCount()/sizeof(char))))] = wxT('\0');
+            wxString msg = wxString::Format(wxT("%s>%s"), msg_data, address.IPAddress());
+            for(mySocketHashMap::iterator it(m_HashMapClients.begin()); it != m_HashMapClients.end(); ++it)
+                if(it->second->IsConnected())
+                    it->second->Write(msg.GetData(), msg.Len()*sizeof(char));
+        }
+        break;
+
+        case wxSOCKET_LOST:
+            mySocketHashMap::iterator it;
+            if((it = m_HashMapClients.find(socket_slave->GetSocket())) != m_HashMapClients.end())
+                m_HashMapClients.erase(it);
+            socket_slave->Destroy();
+        break;
+    }
 }

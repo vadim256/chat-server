@@ -17,6 +17,16 @@
 #include <wx/sizer.h>
 #include <wx/statusbr.h>
 //*)
+#include <memory>
+
+#include <wx/socket.h>
+#include <wx/hashmap.h>
+#include <wx/valgen.h>
+#include <wx/string.h>
+#include <cassert>
+#include <cmath>
+
+WX_DECLARE_HASH_MAP(wxSOCKET_T, wxSocketBase*, wxIntegerHash, wxIntegerEqual, mySocketHashMap);
 
 class ServerFrame: public wxFrame
 {
@@ -26,11 +36,14 @@ class ServerFrame: public wxFrame
         virtual ~ServerFrame();
 
     private:
-
+        void CreateControls();
+        bool InitializeSocketServer();
         //(*Handlers(ServerFrame)
         void OnQuit(wxCommandEvent& event);
         void OnAbout(wxCommandEvent& event);
         //*)
+        void OnSocketEventServer(wxSocketEvent &);
+        void OnSocketEventClient(wxSocketEvent &);
 
         //(*Identifiers(ServerFrame)
         static const long ID_PANEL1;
@@ -38,12 +51,15 @@ class ServerFrame: public wxFrame
         static const long idMenuAbout;
         static const long ID_STATUSBAR1;
         //*)
+        static const long idSocketServer;
+        static const long idSocketClient;
 
         //(*Declarations(ServerFrame)
         wxPanel* Panel1;
         wxStatusBar* StatusBar1;
         //*)
-
+        std::unique_ptr<wxSocketServer> m_PtrServer;
+        mySocketHashMap m_HashMapClients;
         DECLARE_EVENT_TABLE()
 };
 
