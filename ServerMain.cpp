@@ -43,6 +43,7 @@ wxString wxbuildinfo(wxbuildinfoformat format)
 }
 
 //(*IdInit(ServerFrame)
+const long ServerFrame::ID_PANEL1 = wxNewId();
 const long ServerFrame::idMenuQuit = wxNewId();
 const long ServerFrame::idMenuAbout = wxNewId();
 const long ServerFrame::ID_STATUSBAR1 = wxNewId();
@@ -56,13 +57,27 @@ END_EVENT_TABLE()
 ServerFrame::ServerFrame(wxWindow* parent,wxWindowID id)
 {
     //(*Initialize(ServerFrame)
+    wxBoxSizer* BoxSizer1;
+    wxBoxSizer* BoxSizer2;
     wxMenu* Menu1;
     wxMenu* Menu2;
     wxMenuBar* MenuBar1;
     wxMenuItem* MenuItem1;
     wxMenuItem* MenuItem2;
 
-    Create(parent, id, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("id"));
+    Create(parent, id, _("wxChatServer"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("id"));
+    SetClientSize(wxSize(500,500));
+    SetMinSize(wxSize(350,350));
+    SetForegroundColour(wxColour(196,237,255));
+    SetBackgroundColour(wxColour(200,219,228));
+    BoxSizer1 = new wxBoxSizer(wxHORIZONTAL);
+    Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL1"));
+    BoxSizer2 = new wxBoxSizer(wxVERTICAL);
+    Panel1->SetSizer(BoxSizer2);
+    BoxSizer2->Fit(Panel1);
+    BoxSizer2->SetSizeHints(Panel1);
+    BoxSizer1->Add(Panel1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    SetSizer(BoxSizer1);
     MenuBar1 = new wxMenuBar();
     Menu1 = new wxMenu();
     MenuItem1 = new wxMenuItem(Menu1, idMenuQuit, _("Quit\tAlt-F4"), _("Quit the application"), wxITEM_NORMAL);
@@ -79,6 +94,9 @@ ServerFrame::ServerFrame(wxWindow* parent,wxWindowID id)
     StatusBar1->SetFieldsCount(1,__wxStatusBarWidths_1);
     StatusBar1->SetStatusStyles(1,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
+    SetSizer(BoxSizer1);
+    Layout();
+    Center();
 
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&ServerFrame::OnQuit);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&ServerFrame::OnAbout);

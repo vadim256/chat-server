@@ -13,6 +13,8 @@
 //(*Headers(ServerFrame)
 #include <wx/frame.h>
 #include <wx/menu.h>
+#include <wx/panel.h>
+#include <wx/sizer.h>
 #include <wx/statusbr.h>
 //*)
 
@@ -31,12 +33,14 @@ class ServerFrame: public wxFrame
         //*)
 
         //(*Identifiers(ServerFrame)
+        static const long ID_PANEL1;
         static const long idMenuQuit;
         static const long idMenuAbout;
         static const long ID_STATUSBAR1;
         //*)
 
         //(*Declarations(ServerFrame)
+        wxPanel* Panel1;
         wxStatusBar* StatusBar1;
         //*)
 
