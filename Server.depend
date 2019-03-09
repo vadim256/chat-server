@@ -1601,7 +1601,7 @@
 1519129042 /usr/include/wx-3.1-unofficial/wx/gtk/mdi.h
 	"wx/frame.h"
 
-1552067458 source:/home/ameliepulen/project1/chat-server/ServerApp.cpp
+1552138106 source:/home/ameliepulen/project1/chat-server/ServerApp.cpp
 	"wx_pch.h"
 	"ServerApp.h"
 	"ServerMain.h"
@@ -1611,17 +1611,21 @@
 	<wx/wxprec.h>
 	<wx/wx.h>
 
-1552066401 /home/ameliepulen/project1/chat-server/ServerApp.h
+1552137335 /home/ameliepulen/project1/chat-server/ServerApp.h
 	<wx/app.h>
 	<wx/intl.h>
 	"ServerMain.h"
 
-1552068959 /home/ameliepulen/project1/chat-server/ServerMain.h
+1552147755 /home/ameliepulen/project1/chat-server/ServerMain.h
+	<wx/button.h>
 	<wx/frame.h>
+	<wx/htmllbox.h>
 	<wx/menu.h>
 	<wx/panel.h>
 	<wx/sizer.h>
+	<wx/splitter.h>
 	<wx/statusbr.h>
+	<wx/textctrl.h>
 	<memory>
 	<wx/socket.h>
 	<wx/hashmap.h>
@@ -1770,4 +1774,12 @@
 
 1519129042 /usr/include/wx-3.1-unofficial/wx/valgen.h
 	"wx/validate.h"
+
+1519129042 /usr/include/wx-3.1-unofficial/wx/splitter.h
+	"wx/event.h"
+	"wx/generic/splitter.h"
+
+1519129042 /usr/include/wx-3.1-unofficial/wx/generic/splitter.h
+	"wx/window.h"
+	"wx/containr.h"
 

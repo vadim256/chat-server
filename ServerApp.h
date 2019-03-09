@@ -14,12 +14,10 @@
 #include <wx/intl.h>
 #include "ServerMain.h"
 
-class ServerApp : public wxApp
-{
+class ServerApp : public wxApp {
         wxLocale m_locale;
 public:
         ServerApp();
-
         virtual bool OnInit();
 };
 

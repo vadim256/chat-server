@@ -17,8 +17,7 @@
 
 IMPLEMENT_APP(ServerApp);
 
-ServerApp::ServerApp()
-{
+ServerApp::ServerApp() {
     m_locale.Init(wxLANGUAGE_UKRAINIAN);
 }
 

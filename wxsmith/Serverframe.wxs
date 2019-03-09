@@ -12,10 +12,48 @@
 				<object class="wxPanel" name="ID_PANEL1" variable="Panel1" member="yes">
 					<object class="wxBoxSizer" variable="BoxSizer2" member="no">
 						<orient>wxVERTICAL</orient>
+						<object class="sizeritem">
+							<object class="wxBoxSizer" variable="BoxSizer3" member="no">
+								<object class="sizeritem">
+									<object class="wxTextCtrl" name="ID_TEXTCTRL1" variable="TextCtrl1" member="yes">
+										<handler function="OnTextEnterAllClients" entry="EVT_TEXT_ENTER" />
+									</object>
+									<flag>wxALL</flag>
+									<border>2</border>
+									<option>5</option>
+								</object>
+								<object class="sizeritem">
+									<object class="wxButton" name="ID_BUTTON1" variable="Button1" member="yes">
+										<label>send</label>
+									</object>
+									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+									<border>1</border>
+								</object>
+							</object>
+							<flag>wxALL|wxEXPAND</flag>
+							<border>2</border>
+						</object>
+						<object class="sizeritem">
+							<object class="wxSplitterWindow" name="ID_SPLITTERWINDOW1" variable="SplitterWindow1" member="yes">
+								<sashgravity>1.000000</sashgravity>
+								<minpanesize>50</minpanesize>
+								<style>wxSP_3D|wxSP_3DBORDER|wxSP_LIVE_UPDATE</style>
+								<object class="wxTextCtrl" name="ID_TEXTCTRL2" variable="TextCtrl2" member="yes">
+									<style>wxTE_MULTILINE|wxTE_READONLY</style>
+								</object>
+								<object class="wxSimpleHtmlListBox" name="ID_SIMPLEHTMLLISTBOX1" variable="SimpleHtmlListBox1" member="yes">
+									<default>-1</default>
+									<style>wxHLB_DEFAULT_STYLE|wxHLB_MULTIPLE</style>
+								</object>
+							</object>
+							<flag>wxALL|wxEXPAND</flag>
+							<border>2</border>
+							<option>1</option>
+						</object>
 					</object>
 				</object>
-				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-				<border>5</border>
+				<flag>wxALL|wxEXPAND</flag>
+				<border>2</border>
 				<option>1</option>
 			</object>
 		</object>
