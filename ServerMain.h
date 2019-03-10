@@ -73,8 +73,8 @@ private:
         wxTextCtrl* TextCtrl2;
         //*)
         std::unique_ptr<wxSocketServer> m_PtrServer;
-        mySocketHashMap m_HashMapClients;
-        
+        mySocketHashMap m_HashMapClients;	
+        wxString m_AdminMsg;
         DECLARE_EVENT_TABLE()
 };
 #endif // SERVERMAIN_H

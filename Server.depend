@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1552049767 source:/home/ameliepulen/project1/chat-server/wx_pch.h
+1552227140 source:/home/ameliepulen/project1/chat-server/wx_pch.h
 	<wx/wxprec.h>
 	<wx/wx.h>
 
@@ -1601,22 +1601,22 @@
 1519129042 /usr/include/wx-3.1-unofficial/wx/gtk/mdi.h
 	"wx/frame.h"
 
-1552138106 source:/home/ameliepulen/project1/chat-server/ServerApp.cpp
+1552227140 source:/home/ameliepulen/project1/chat-server/ServerApp.cpp
 	"wx_pch.h"
 	"ServerApp.h"
 	"ServerMain.h"
 	<wx/image.h>
 
-1552049767 /home/ameliepulen/project1/chat-server/wx_pch.h
+1552227140 /home/ameliepulen/project1/chat-server/wx_pch.h
 	<wx/wxprec.h>
 	<wx/wx.h>
 
-1552137335 /home/ameliepulen/project1/chat-server/ServerApp.h
+1552227140 /home/ameliepulen/project1/chat-server/ServerApp.h
 	<wx/app.h>
 	<wx/intl.h>
 	"ServerMain.h"
 
-1552147755 /home/ameliepulen/project1/chat-server/ServerMain.h
+1552241977 /home/ameliepulen/project1/chat-server/ServerMain.h
 	<wx/button.h>
 	<wx/frame.h>
 	<wx/htmllbox.h>

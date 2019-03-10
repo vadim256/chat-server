@@ -16,6 +16,7 @@
 							<object class="wxBoxSizer" variable="BoxSizer3" member="no">
 								<object class="sizeritem">
 									<object class="wxTextCtrl" name="ID_TEXTCTRL1" variable="TextCtrl1" member="yes">
+										<style>wxTE_PROCESS_ENTER|wxTE_RICH|wxTE_RICH2</style>
 										<handler function="OnTextEnterAllClients" entry="EVT_TEXT_ENTER" />
 									</object>
 									<flag>wxALL</flag>
@@ -25,6 +26,7 @@
 								<object class="sizeritem">
 									<object class="wxButton" name="ID_BUTTON1" variable="Button1" member="yes">
 										<label>send</label>
+										<handler function="OnTextEnterAllClients" entry="EVT_BUTTON" />
 									</object>
 									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 									<border>1</border>
