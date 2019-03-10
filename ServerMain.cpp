@@ -82,7 +82,7 @@ ServerFrame::ServerFrame(wxWindow* parent, wxWindowID id) {
     Panel1 = new wxPanel(this, ID_PANEL1, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_PANEL1"));
     BoxSizer2 = new wxBoxSizer(wxVERTICAL);
     BoxSizer3 = new wxBoxSizer(wxHORIZONTAL);
-    TextCtrl1 = new wxTextCtrl(Panel1, ID_TEXTCTRL1, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TEXTCTRL1"));
+    TextCtrl1 = new wxTextCtrl(Panel1, ID_TEXTCTRL1, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER|wxTE_RICH|wxTE_RICH2, wxDefaultValidator, _T("ID_TEXTCTRL1"));
     BoxSizer3->Add(TextCtrl1, 5, wxALL, 2);
     Button1 = new wxButton(Panel1, ID_BUTTON1, _("send"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON1"));
     BoxSizer3->Add(Button1, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
@@ -120,9 +120,11 @@ ServerFrame::ServerFrame(wxWindow* parent, wxWindowID id) {
     Center();
 
     Connect(ID_TEXTCTRL1,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&ServerFrame::OnTextEnterAllClients);
+    Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ServerFrame::OnTextEnterAllClients);
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&ServerFrame::OnQuit);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&ServerFrame::OnAbout);
     //*)
+    TextCtrl1->SetValidator(wxGenericValidator(&m_AdminMsg));
     if(InitializeSocketServer() == false){
         TextCtrl2->AppendText(_("сould not start server\n"));
     } else {
@@ -181,6 +183,7 @@ void ServerFrame::OnSocketEventServer(wxSocketEvent & event) {
             wxIPV4address address;
             socket_slave->GetLocal(address);
             TextCtrl2->AppendText(wxString::Format(_("[%s] new customer added\n"), address.IPAddress()));
+            SimpleHtmlListBox1->Append(wxString(wxT("[%s]\n"), address.IPAddress()));
             break;
     }
 }
@@ -195,8 +198,8 @@ void ServerFrame::OnSocketEventClient(wxSocketEvent & event) {
         case wxSOCKET_INPUT:
         socket_slave->Read(msg_data, sizeof(char)*SIZE_MSG);
         if(socket_slave->Error()){
-
-        } else{
+            TextCtrl2->AppendText(wxT("сould not read message from client\n"));
+        } else {
             msg_data[static_cast<size_t>(ceil(static_cast<double>(socket_slave->LastCount()/sizeof(char))))] = wxT('\0');
             wxString msg = wxString::Format(_T("[%s] %s\n"), msg_data, address.IPAddress());
             TextCtrl2->AppendText(msg);
@@ -212,10 +215,30 @@ void ServerFrame::OnSocketEventClient(wxSocketEvent & event) {
                 m_HashMapClients.erase(it);
             socket_slave->Destroy();
             TextCtrl2->AppendText(wxString::Format(_("[%s] detached customer\n"), address.IPAddress()));
+
+            SimpleHtmlListBox1->Clear();
+            for(auto it(m_HashMapClients.begin()); it != m_HashMapClients.end(); ++it){
+                wxIPV4address addr;
+                it->second->GetLocal(addr);
+                SimpleHtmlListBox1->Append(wxString(wxT("[%s]\n"), addr.IPAddress()));
+            }
+
         break;
     }
 }
 
 void ServerFrame::OnTextEnterAllClients(wxCommandEvent& event) {
+    TransferDataFromWindow();
+    if(m_AdminMsg.IsNull()) return;
+    m_AdminMsg = wxString(wxT("[admin] ")) + m_AdminMsg;
+    TextCtrl2->AppendText(m_AdminMsg+wxString(wxT("\n")));
 
+    for(auto it(m_HashMapClients.begin()); it != m_HashMapClients.end(); ++it){
+        auto client = it->second;
+        if(client->IsConnected()){
+            client->Write(m_AdminMsg.GetData(), m_AdminMsg.Len()+sizeof(char));
+        }
+    }
+    m_AdminMsg.Clear();
+    TransferDataToWindow();
 }

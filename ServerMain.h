@@ -49,7 +49,7 @@ private:
         //*)
         void OnSocketEventServer(wxSocketEvent &);
         void OnSocketEventClient(wxSocketEvent &);
-
+        
         //(*Identifiers(ServerFrame)
         static const long ID_TEXTCTRL1;
         static const long ID_BUTTON1;
@@ -74,7 +74,7 @@ private:
         //*)
         std::unique_ptr<wxSocketServer> m_PtrServer;
         mySocketHashMap m_HashMapClients;
-        
+        wxString m_AdminMsg;
         DECLARE_EVENT_TABLE()
 };
 #endif // SERVERMAIN_H
