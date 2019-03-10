@@ -49,7 +49,7 @@ private:
         //*)
         void OnSocketEventServer(wxSocketEvent &);
         void OnSocketEventClient(wxSocketEvent &);
-        
+
         //(*Identifiers(ServerFrame)
         static const long ID_TEXTCTRL1;
         static const long ID_BUTTON1;
