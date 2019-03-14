@@ -24,13 +24,12 @@
 
 
 #include <wx/socket.h>
-#include <wx/hashmap.h>
 #include <wx/valgen.h>
 #include <wx/string.h>
-#include <cassert>
 #include <cmath>
+#include <wx/hashmap.h>
+WX_DECLARE_HASH_MAP(wxSOCKET_T, wxSocketBase *, wxIntegerHash, wxIntegerEqual, wxSocketHash);
 
-WX_DECLARE_HASH_MAP(wxSOCKET_T, wxSocketBase *, wxIntegerHash, wxIntegerEqual, mySocketHashMap);
 
 class ServerFrame: public wxFrame {
 public:
@@ -64,7 +63,6 @@ private:
         static const long idSocketServer;
         static const long idSocketClient;
         //(*Declarations(ServerFrame)
-
         wxButton* Button1;
         wxPanel* Panel1;
         wxSimpleHtmlListBox* SimpleHtmlListBox1;
@@ -74,9 +72,8 @@ private:
         wxTextCtrl* TextCtrl2;
         //*)
         
-        wxSocketServer * m_PtrServer;
-
-        mySocketHashMap m_HashMapClients;	
+        wxSocketServer * m_SocketServer;
+        wxSocketHash m_HashClients;
         wxString m_AdminMsg;
         DECLARE_EVENT_TABLE()
 };

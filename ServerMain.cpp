@@ -146,10 +146,10 @@ ServerFrame::ServerFrame(wxWindow* parent, wxWindowID id) {
 ServerFrame::~ServerFrame() {
     //(*Destroy(ServerFrame)
     //*)
-    for(auto it = m_HashMapClients.begin(); it != m_HashMapClients.end(); ++it)
-        it->second->Destroy();
-    
-    if(m_PtrServer) m_PtrServer->Destroy();
+     for(wxSocketHash::iterator it = m_HashClients.begin(); it != m_HashClients.end(); ++it)
+                    it->second->Destroy();
+
+    if(m_SocketServer) m_SocketServer->Destroy();
 }
 
 void ServerFrame::OnQuit(wxCommandEvent& event) {
@@ -166,12 +166,12 @@ bool ServerFrame::InitializeSocketServer() {
     wxIPV4address address;
     address.Service(3000);
 
-    m_PtrServer = new wxSocketServer(address);
-    if(!m_PtrServer->IsOk()) return false;
+    m_SocketServer = new wxSocketServer(address);
+    if(!m_SocketServer->IsOk()) return false;
 
-    m_PtrServer->SetEventHandler(*this, idSocketServer);
-    m_PtrServer->SetNotify(wxSOCKET_CONNECTION_FLAG);
-    m_PtrServer->Notify(TRUE);
+    m_SocketServer->SetEventHandler(*this, idSocketServer);
+    m_SocketServer->SetNotify(wxSOCKET_CONNECTION_FLAG);
+    m_SocketServer->Notify(TRUE);
 
     return true;
 }
@@ -180,19 +180,26 @@ void ServerFrame::OnSocketEventServer(wxSocketEvent & event) {
 
     switch(event.GetSocketEvent()){
         case wxSOCKET_CONNECTION:
-            auto socket_slave = m_PtrServer->Accept(FALSE);
+            auto socket_slave = m_SocketServer->Accept(FALSE);
             if(!socket_slave){
-                TextCtrl2->AppendText(wxT(">error failed to attach client\n"));
+                TextCtrl2->AppendText(wxT("[error] failed to attach client\n"));
                 return;
             }
             socket_slave->SetEventHandler(*this, idSocketClient);
             socket_slave->SetNotify(wxSOCKET_INPUT_FLAG|wxSOCKET_LOST_FLAG);
             socket_slave->Notify(TRUE);
-            m_HashMapClients[socket_slave->GetSocket()] = socket_slave;
+            m_HashClients[socket_slave->GetSocket()] = socket_slave;
             wxIPV4address address;
             socket_slave->GetLocal(address);
             TextCtrl2->AppendText(wxString::Format(_("[%s] new customer added\n"), address.IPAddress()));
-            SimpleHtmlListBox1->Append(wxString::Format(wxT("[%s]"), address.IPAddress()));
+            SimpleHtmlListBox1->Clear();
+            for(auto it(m_HashClients.begin()); it != m_HashClients.end();++it){
+                if(it->second->IsConnected()){
+                    wxIPV4address address;
+                    it->second->GetLocal(address);
+                    SimpleHtmlListBox1->Append(wxString::Format(wxT("[%s]"), address.IPAddress()));
+                }
+            }
             break;
     }
 }
@@ -202,7 +209,6 @@ void ServerFrame::OnSocketEventClient(wxSocketEvent & event) {
     wxIPV4address address;
     socket_slave->GetLocal(address);
     char msg_data[SIZE_MSG];
-    wxString msg;
     switch(event.GetSocketEvent()){
         case wxSOCKET_INPUT:
         socket_slave->Read(msg_data, sizeof(char)*SIZE_MSG);
@@ -210,32 +216,23 @@ void ServerFrame::OnSocketEventClient(wxSocketEvent & event) {
             TextCtrl2->AppendText(wxString(wxT("[error] сould not read message\n")));
         } else{
             msg_data[(size_t)ceil((double)socket_slave->LastCount()/sizeof(char))] = wxT('\0');
-            msg = wxString::Format(_T("[%s] %s"),address.IPAddress(), msg_data);
+            wxString msg = wxString::Format(_T("[%s] %s"),address.IPAddress(), msg_data);
             TextCtrl2->AppendText(msg+wxString(wxT("\n")));
-	        for(auto it(m_HashMapClients.begin()); it != m_HashMapClients.end(); ++it)
-                if(it->second->IsConnected())
-                    it->second->Write(msg.GetData(), msg.Len()*sizeof(char));
+	        for(wxSocketHash::iterator it = m_HashClients.begin(); it != m_HashClients.end(); ++it)
+                    if(it->second->IsConnected())
+                       it->second->Write(msg.GetData(), msg.Length()*sizeof(char));
         }
         break;
 
         case wxSOCKET_LOST:
-            mySocketHashMap::iterator it;
-            if((it = m_HashMapClients.find(socket_slave->GetSocket())) != m_HashMapClients.end())
-                m_HashMapClients.erase(it);
-            if(socket_slave)
-                socket_slave->Destroy();
 
             TextCtrl2->AppendText(wxString::Format(_("[%s] detached customer\n"), address.IPAddress()));
+             wxSocketHash::iterator it;
+            if((it = m_HashClients.find(socket_slave->GetSocket())) != m_HashClients.end())
+                m_HashClients.erase(it);
 
-	        SimpleHtmlListBox1->Clear();
-            for(auto it(m_HashMapClients.begin()); it != m_HashMapClients.end(); ++it){
-                auto sock = it->second;
-                if(sock){
-                    wxIPV4address addr;
-                    sock->GetLocal(addr);
-            	    SimpleHtmlListBox1->Append(wxString(wxT("[%s]\n"), addr.IPAddress()));
-                }
-	    }
+            if(socket_slave->IsOk())
+                socket_slave->Destroy();
         break;
     }
 }
@@ -243,13 +240,13 @@ void ServerFrame::OnSocketEventClient(wxSocketEvent & event) {
 void ServerFrame::OnTextEnterAllClients(wxCommandEvent& event) {
     TransferDataFromWindow();
     if(m_AdminMsg.IsNull()) return;
-    m_AdminMsg = wxString(wxT("[admin] ")) + m_AdminMsg + wxString(wxT("\n"));
-    TextCtrl2->AppendText(m_AdminMsg);
+    m_AdminMsg = wxString(wxT("[admin] ")) + m_AdminMsg;
+    TextCtrl2->AppendText(m_AdminMsg+wxString(wxT("\n")));
 
-    for(auto it(m_HashMapClients.begin()); it != m_HashMapClients.end(); ++it){
+    for(auto it(m_HashClients.begin()); it != m_HashClients.end(); ++it){
         auto client = it->second;
         if(client){
-            client->Write(m_AdminMsg.GetData(), m_AdminMsg.Len()+sizeof(char));
+            client->Write(m_AdminMsg.GetData(), m_AdminMsg.Len()*sizeof(char));
         }
     }
     m_AdminMsg.Clear();

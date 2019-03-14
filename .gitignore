@@ -1,0 +1,8 @@
+
+/obj
+/bin
+/wx_pch.h.gch
+*.layout
+*.depend
+*.png
+
