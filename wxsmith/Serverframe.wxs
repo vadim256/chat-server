@@ -3,6 +3,7 @@
 	<object class="wxFrame" name="ServerFrame">
 		<title>wxChatServer</title>
 		<centered>1</centered>
+		<icon>/home/ameliepulen/project1/chat-server/server_icon.png</icon>
 		<size>500,500</size>
 		<fg>#C4EDFF</fg>
 		<bg>#C8DBE4</bg>

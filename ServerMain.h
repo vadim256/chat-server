@@ -22,7 +22,7 @@
 #include <wx/textctrl.h>
 //*)
 
-#include <memory>
+
 #include <wx/socket.h>
 #include <wx/hashmap.h>
 #include <wx/valgen.h>
@@ -34,7 +34,7 @@ WX_DECLARE_HASH_MAP(wxSOCKET_T, wxSocketBase *, wxIntegerHash, wxIntegerEqual, m
 
 class ServerFrame: public wxFrame {
 public:
-    ServerFrame(wxWindow* parent,wxWindowID id = -1);
+    explicit ServerFrame(wxWindow* parent,wxWindowID id = -1);
     virtual ~ServerFrame();
     enum {
         SIZE_MSG = 1024
@@ -64,6 +64,7 @@ private:
         static const long idSocketServer;
         static const long idSocketClient;
         //(*Declarations(ServerFrame)
+
         wxButton* Button1;
         wxPanel* Panel1;
         wxSimpleHtmlListBox* SimpleHtmlListBox1;
@@ -72,7 +73,9 @@ private:
         wxTextCtrl* TextCtrl1;
         wxTextCtrl* TextCtrl2;
         //*)
-        std::unique_ptr<wxSocketServer> m_PtrServer;
+        
+        wxSocketServer * m_PtrServer;
+
         mySocketHashMap m_HashMapClients;	
         wxString m_AdminMsg;
         DECLARE_EVENT_TABLE()
