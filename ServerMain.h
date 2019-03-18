@@ -22,14 +22,15 @@
 #include <wx/textctrl.h>
 //*)
 
-
 #include <wx/socket.h>
 #include <wx/valgen.h>
 #include <wx/string.h>
 #include <cmath>
 #include <wx/hashmap.h>
-WX_DECLARE_HASH_MAP(wxSOCKET_T, wxSocketBase *, wxIntegerHash, wxIntegerEqual, wxSocketHash);
+#include "SaveInDB.h"
+#include <memory>
 
+WX_DECLARE_HASH_MAP(wxSOCKET_T, wxSocketBase *, wxIntegerHash, wxIntegerEqual, wxSocketHash);
 
 class ServerFrame: public wxFrame {
 public:
@@ -71,10 +72,11 @@ private:
         wxTextCtrl* TextCtrl1;
         wxTextCtrl* TextCtrl2;
         //*)
-        
+
         wxSocketServer * m_SocketServer;
         wxSocketHash m_HashClients;
         wxString m_AdminMsg;
+        std::unique_ptr<SaveInDB> m_PtrSave;
         DECLARE_EVENT_TABLE()
 };
 #endif // SERVERMAIN_H

@@ -65,7 +65,9 @@ BEGIN_EVENT_TABLE(ServerFrame,wxFrame)
     //*)
 END_EVENT_TABLE()
 
-ServerFrame::ServerFrame(wxWindow* parent, wxWindowID id) {
+ServerFrame::ServerFrame(wxWindow* parent, wxWindowID id)
+: m_PtrSave(new SaveInDB)
+{
     //(*Initialize(ServerFrame)
     wxBoxSizer* BoxSizer1;
     wxBoxSizer* BoxSizer2;
@@ -141,6 +143,12 @@ ServerFrame::ServerFrame(wxWindow* parent, wxWindowID id) {
     }
     this->Connect(idSocketServer, wxEVT_SOCKET, wxSocketEventHandler(ServerFrame::OnSocketEventServer));
     this->Connect(idSocketClient, wxEVT_SOCKET, wxSocketEventHandler(ServerFrame::OnSocketEventClient));
+
+    m_PtrSave->ReadMessageInDB();
+    auto data = m_PtrSave->GetAllMessage();
+    for(const auto & it : data)
+        TextCtrl2->AppendText(it+wxString(wxT("\n")));
+
 }
 
 ServerFrame::~ServerFrame() {
@@ -193,12 +201,19 @@ void ServerFrame::OnSocketEventServer(wxSocketEvent & event) {
             socket_slave->GetLocal(address);
             TextCtrl2->AppendText(wxString::Format(_("[%s] new customer added\n"), address.IPAddress()));
             SimpleHtmlListBox1->Clear();
+
             for(auto it(m_HashClients.begin()); it != m_HashClients.end();++it){
                 if(it->second->IsConnected()){
                     wxIPV4address address;
                     it->second->GetLocal(address);
                     SimpleHtmlListBox1->Append(wxString::Format(wxT("[%s]"), address.IPAddress()));
                 }
+            }
+            m_PtrSave->ReadMessageInDB();
+            auto data = m_PtrSave->GetAllMessage();
+            for(const auto & it : data){
+                wxString s = it+wxString(wxT("\n"));
+                socket_slave->Write(s.GetData(), s.Len()*sizeof(char));
             }
             break;
     }
@@ -218,6 +233,8 @@ void ServerFrame::OnSocketEventClient(wxSocketEvent & event) {
             msg_data[(size_t)ceil((double)socket_slave->LastCount()/sizeof(char))] = wxT('\0');
             wxString msg = wxString::Format(_T("[%s] %s"),address.IPAddress(), msg_data);
             TextCtrl2->AppendText(msg+wxString(wxT("\n")));
+            m_PtrSave->SetMessage((const char*)msg.c_str());
+            m_PtrSave->WriteMessageInDB();
 	        for(wxSocketHash::iterator it = m_HashClients.begin(); it != m_HashClients.end(); ++it)
                     if(it->second->IsConnected())
                        it->second->Write(msg.GetData(), msg.Length()*sizeof(char));
@@ -242,6 +259,9 @@ void ServerFrame::OnTextEnterAllClients(wxCommandEvent& event) {
     if(m_AdminMsg.IsNull()) return;
     m_AdminMsg = wxString(wxT("[admin] ")) + m_AdminMsg;
     TextCtrl2->AppendText(m_AdminMsg+wxString(wxT("\n")));
+
+    m_PtrSave->SetMessage((const char*)m_AdminMsg.c_str());
+    m_PtrSave->WriteMessageInDB();
 
     for(auto it(m_HashClients.begin()); it != m_HashClients.end(); ++it){
         auto client = it->second;
