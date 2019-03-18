@@ -61,6 +61,7 @@ void SaveInDB::WriteMessageInDB(){
 }
 
 void SaveInDB::ReadMessageInDB(){
+    m_allmessages.clear();
     sqlite3_stmt * stmt = nullptr;
     std::string request_sql = "SELECT message FROM list_messages;";
     auto result = sqlite3_prepare_v2(m_ptrdb, request_sql.c_str(),
