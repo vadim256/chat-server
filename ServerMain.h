@@ -21,7 +21,7 @@
 #include <wx/statusbr.h>
 #include <wx/textctrl.h>
 //*)
-
+#include <stdexcept>
 #include <wx/socket.h>
 #include <wx/valgen.h>
 #include <wx/string.h>
@@ -32,25 +32,26 @@
 
 WX_DECLARE_HASH_MAP(wxSOCKET_T, wxSocketBase *, wxIntegerHash, wxIntegerEqual, wxSocketHash);
 
-class ServerFrame: public wxFrame {
-public:
-    explicit ServerFrame(wxWindow* parent,wxWindowID id = -1);
+struct ServerFrame: wxFrame {
+
+    explicit ServerFrame(wxWindow* parent, wxWindowID id = -1);
     virtual ~ServerFrame();
-    enum {
-        SIZE_MSG = 1024
-    };
-private:
-        void CreateControls();
-        bool InitializeSocketServer();
-        //(*Handlers(ServerFrame)
+
+
+    static const int SIZE_MSG = 1024;
+
+protected:
+
         void OnQuit(wxCommandEvent& event);
         void OnAbout(wxCommandEvent& event);
         void OnTextEnterAllClients(wxCommandEvent& event);
-        //*)
         void OnSocketEventServer(wxSocketEvent &);
         void OnSocketEventClient(wxSocketEvent &);
 
-        //(*Identifiers(ServerFrame)
+private:
+        bool CreateControls(wxWindow * parent, wxWindowID id);
+        bool InitializeSocketServer();
+
         static const long ID_TEXTCTRL1;
         static const long ID_BUTTON1;
         static const long ID_TEXTCTRL2;
@@ -60,10 +61,10 @@ private:
         static const long idMenuQuit;
         static const long idMenuAbout;
         static const long ID_STATUSBAR1;
-        //*)
         static const long idSocketServer;
         static const long idSocketClient;
-        //(*Declarations(ServerFrame)
+
+
         wxButton* Button1;
         wxPanel* Panel1;
         wxSimpleHtmlListBox* SimpleHtmlListBox1;
@@ -71,7 +72,15 @@ private:
         wxStatusBar* StatusBar1;
         wxTextCtrl* TextCtrl1;
         wxTextCtrl* TextCtrl2;
-        //*)
+
+        wxBoxSizer* BoxSizer1;
+        wxBoxSizer* BoxSizer2;
+        wxBoxSizer* BoxSizer3;
+        wxMenu* Menu1;
+        wxMenu* Menu2;
+        wxMenuBar* MenuBar1;
+        wxMenuItem* MenuItem1;
+        wxMenuItem* MenuItem2;
 
         wxSocketServer * m_SocketServer;
         wxSocketHash m_HashClients;

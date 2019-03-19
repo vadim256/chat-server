@@ -22,6 +22,7 @@
 				<Linker>
 					<Add option="-m64" />
 					<Add option="`wx-config  --version=3.1 --static=no --unicode=yes --debug=yes --libs`" />
+					<Add library="/usr/lib/x86_64-linux-gnu/libsqlite3.so" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -33,10 +34,12 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add option="`wx-config  --version=3.1 --static=no --unicode=yes --debug=no --cflags`" />
+					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="`wx-config  --version=3.1 --static=no --unicode=yes --debug=no --libs`" />
+					<Add library="/usr/lib/x86_64-linux-gnu/libsqlite3.so" />
 				</Linker>
 			</Target>
 		</Build>
@@ -46,6 +49,8 @@
 			<Add option="-DWX_PRECOMP" />
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="SaveInDB.cpp" />
+		<Unit filename="SaveInDB.h" />
 		<Unit filename="ServerApp.cpp" />
 		<Unit filename="ServerApp.h" />
 		<Unit filename="ServerMain.cpp" />

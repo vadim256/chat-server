@@ -45,7 +45,7 @@ wxString wxbuildinfo(wxbuildinfoformat format)
     return wxbuild;
 }
 
-//(*IdInit(ServerFrame)
+
 const long ServerFrame::ID_TEXTCTRL1 = wxNewId();
 const long ServerFrame::ID_BUTTON1 = wxNewId();
 const long ServerFrame::ID_TEXTCTRL2 = wxNewId();
@@ -55,30 +55,47 @@ const long ServerFrame::ID_PANEL1 = wxNewId();
 const long ServerFrame::idMenuQuit = wxNewId();
 const long ServerFrame::idMenuAbout = wxNewId();
 const long ServerFrame::ID_STATUSBAR1 = wxNewId();
-//*)
-
 const long ServerFrame::idSocketClient = wxNewId();
 const long ServerFrame::idSocketServer = wxNewId();
+const int ServerFrame::SIZE_MSG;
 
 BEGIN_EVENT_TABLE(ServerFrame,wxFrame)
-    //(*EventTable(ServerFrame)
-    //*)
 END_EVENT_TABLE()
 
 ServerFrame::ServerFrame(wxWindow* parent, wxWindowID id)
 : m_PtrSave(new SaveInDB)
 {
-    //(*Initialize(ServerFrame)
-    wxBoxSizer* BoxSizer1;
-    wxBoxSizer* BoxSizer2;
-    wxBoxSizer* BoxSizer3;
-    wxMenu* Menu1;
-    wxMenu* Menu2;
-    wxMenuBar* MenuBar1;
-    wxMenuItem* MenuItem1;
-    wxMenuItem* MenuItem2;
+    if(!CreateControls(parent, id))
+        throw std::runtime_error("сould not create window");
 
-    Create(parent, id, _("wxChatServer"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("id"));
+    this->Connect(ID_TEXTCTRL1,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&ServerFrame::OnTextEnterAllClients);
+    this->Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ServerFrame::OnTextEnterAllClients);
+    this->Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&ServerFrame::OnQuit);
+    this->Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&ServerFrame::OnAbout);
+    this->Connect(idSocketServer, wxEVT_SOCKET, wxSocketEventHandler(ServerFrame::OnSocketEventServer));
+    this->Connect(idSocketClient, wxEVT_SOCKET, wxSocketEventHandler(ServerFrame::OnSocketEventClient));
+
+    if(!InitializeSocketServer()){
+        TextCtrl2->AppendText(_("[error] сould not start server\n"));
+    } else {
+        TextCtrl2->AppendText(_("[success] go\n"));
+    }
+    m_PtrSave->ReadMessageInDB();
+    auto data = m_PtrSave->GetAllMessage();
+    for(const auto & it : data)
+        TextCtrl2->AppendText(it+wxString(wxT("\n")));
+}
+
+ServerFrame::~ServerFrame() {
+    for(auto it = m_HashClients.begin(); it != m_HashClients.end(); ++it)
+        it->second->Destroy();
+    if(m_SocketServer) m_SocketServer->Destroy();
+}
+
+bool ServerFrame::CreateControls(wxWindow * parent, wxWindowID id){
+
+    if(!Create(parent, id, _("wxChatServer"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("id")))
+        return false;
     SetClientSize(wxSize(500,500));
     SetMinSize(wxSize(350,350));
     SetForegroundColour(wxColour(196,237,255));
@@ -93,6 +110,7 @@ ServerFrame::ServerFrame(wxWindow* parent, wxWindowID id)
     BoxSizer2 = new wxBoxSizer(wxVERTICAL);
     BoxSizer3 = new wxBoxSizer(wxHORIZONTAL);
     TextCtrl1 = new wxTextCtrl(Panel1, ID_TEXTCTRL1, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER|wxTE_RICH|wxTE_RICH2, wxDefaultValidator, _T("ID_TEXTCTRL1"));
+    TextCtrl1->SetValidator(wxGenericValidator(&m_AdminMsg));
     BoxSizer3->Add(TextCtrl1, 5, wxALL, 2);
     Button1 = new wxButton(Panel1, ID_BUTTON1, _("send"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON1"));
     BoxSizer3->Add(Button1, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
@@ -129,36 +147,9 @@ ServerFrame::ServerFrame(wxWindow* parent, wxWindowID id)
     Layout();
     Center();
 
-    Connect(ID_TEXTCTRL1,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&ServerFrame::OnTextEnterAllClients);
-    Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ServerFrame::OnTextEnterAllClients);
-    Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&ServerFrame::OnQuit);
-    Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&ServerFrame::OnAbout);
-    //*)
-    TextCtrl1->SetValidator(wxGenericValidator(&m_AdminMsg));
-
-    if(!InitializeSocketServer()){
-        TextCtrl2->AppendText(_("[error] сould not start server\n"));
-    } else {
-        TextCtrl2->AppendText(_("[success] go\n"));
-    }
-    this->Connect(idSocketServer, wxEVT_SOCKET, wxSocketEventHandler(ServerFrame::OnSocketEventServer));
-    this->Connect(idSocketClient, wxEVT_SOCKET, wxSocketEventHandler(ServerFrame::OnSocketEventClient));
-
-    m_PtrSave->ReadMessageInDB();
-    auto data = m_PtrSave->GetAllMessage();
-    for(const auto & it : data)
-        TextCtrl2->AppendText(it+wxString(wxT("\n")));
-
+    return true;
 }
 
-ServerFrame::~ServerFrame() {
-    //(*Destroy(ServerFrame)
-    //*)
-     for(wxSocketHash::iterator it = m_HashClients.begin(); it != m_HashClients.end(); ++it)
-                    it->second->Destroy();
-
-    if(m_SocketServer) m_SocketServer->Destroy();
-}
 
 void ServerFrame::OnQuit(wxCommandEvent& event) {
     Close();
@@ -209,12 +200,13 @@ void ServerFrame::OnSocketEventServer(wxSocketEvent & event) {
                     SimpleHtmlListBox1->Append(wxString::Format(wxT("[%s]"), address.IPAddress()));
                 }
             }
-            m_PtrSave->ReadMessageInDB();
+            /*m_PtrSave->ReadMessageInDB();
             auto data = m_PtrSave->GetAllMessage();
             for(const auto & it : data){
                 wxString s = it+wxString(wxT("\n"));
                 socket_slave->Write(s.GetData(), s.Len()*sizeof(char));
-            }
+            }*/
+
             break;
     }
 }
@@ -233,7 +225,7 @@ void ServerFrame::OnSocketEventClient(wxSocketEvent & event) {
             msg_data[(size_t)ceil((double)socket_slave->LastCount()/sizeof(char))] = wxT('\0');
             wxString msg = wxString::Format(_T("[%s] %s"),address.IPAddress(), msg_data);
             TextCtrl2->AppendText(msg+wxString(wxT("\n")));
-            m_PtrSave->SetMessage((const char*)msg.c_str());
+            m_PtrSave->SetMessage(msg);
             m_PtrSave->WriteMessageInDB();
 	        for(wxSocketHash::iterator it = m_HashClients.begin(); it != m_HashClients.end(); ++it)
                     if(it->second->IsConnected())
@@ -260,7 +252,7 @@ void ServerFrame::OnTextEnterAllClients(wxCommandEvent& event) {
     m_AdminMsg = wxString(wxT("[admin] ")) + m_AdminMsg;
     TextCtrl2->AppendText(m_AdminMsg+wxString(wxT("\n")));
 
-    m_PtrSave->SetMessage((const char*)m_AdminMsg.c_str());
+    m_PtrSave->SetMessage(m_AdminMsg);
     m_PtrSave->WriteMessageInDB();
 
     for(auto it(m_HashClients.begin()); it != m_HashClients.end(); ++it){

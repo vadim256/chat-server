@@ -23,16 +23,21 @@ ServerApp::ServerApp() {
 
 bool ServerApp::OnInit()
 {
-    //(*AppInitialize
+
     bool wxsOK = true;
     wxInitAllImageHandlers();
-    if ( wxsOK )
+    if (wxsOK)
     {
-    	ServerFrame* Frame = new ServerFrame(0);
-    	Frame->Show();
-    	SetTopWindow(Frame);
+    	try{
+    	    ServerFrame* Frame = new ServerFrame(0);
+            Frame->Show();
+            SetTopWindow(Frame);
+
+    	}
+    	catch(std::runtime_error const & e){
+    	    wxMessageBox(wxString(e.what(),wxConvUTF8));
+    	}
     }
-    //*)
 
     return wxsOK;
 }

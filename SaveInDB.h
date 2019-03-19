@@ -11,8 +11,8 @@ struct SaveInDB {
     explicit SaveInDB(const std::string & = "chat_data.sqlite3");
     ~SaveInDB();
 
-    void SetMessage(std::string const &);
-    std::string GetMessage() const;
+    void SetMessage(wxString const &);
+    wxString GetMessage() const;
     void WriteMessageInDB();
     void ReadMessageInDB();
     const wxVector<wxString> & GetAllMessage() const;
@@ -20,7 +20,7 @@ struct SaveInDB {
     private:
 
     sqlite3 * m_ptrdb;
-    std::string m_message;
+    wxString m_message;
     wxVector<wxString> m_allmessages;
 };
 
